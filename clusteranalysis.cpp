@@ -1,9 +1,12 @@
 /******************************************************************* -*- C++ -*-
-*
-* author: Jesus Emeterio Navarro Barrientos.
-* web: https://sites.google.com/site/jenavarrob/
-* date: 2017-01-03
-*******************************************************************************/
+ *
+ * author: Jesus Emeterio Navarro Barrientos.
+ * web: https://sites.google.com/site/jenavarrob/
+ * date: 2017-01-03
+ *******************************************************************************/
+
+#include <iostream>
+#include <ctime>
 
 #include "clusteranalysis.h"
 
@@ -13,280 +16,308 @@
 
 #define DEBUG  //for debugging
 
-clusterAnalysis::clusterAnalysis(int k, int iter, std::list<DataPoint> dataPoints)
+using namespace std;
+
+clusterAnalysis::clusterAnalysis(int k, int iter, vector<DataPoint> dataPoints)
 {
-    for (int i = 0; i < k; i++)
-    {
-        Cluster clus1=Cluster("Cluster" + QString::number(i));
-        clusters.append(clus1);
+  for (int i = 0; i < k; i++) {
+    Cluster clus1=Cluster("Cluster" + to_string(i));
+    clusters.push_back(clus1);
 
 #ifdef DEBUG
-        Cluster clus=clusters.at(i);
-        std::cout << "appended cluster: " << clus.getName();
+    cout << "push_back cluster: " << clusters.at(i).getName() << endl;
 #endif
-    }
+  }
 
-    miter = iter;
-    mDataPoints = dataPoints;
+  miter = iter;
+  mDataPoints = dataPoints;
 }
 
 void clusterAnalysis::calcSWCSS()
 {
-    double temp = 0;
+  double temp = 0;
 
-    for (int i = 0; i < clusters.size(); i++)
-        temp = temp + clusters[i].getSumSqr();
+  for (int i = 0; i < clusters.size(); i++)
+    temp = temp + clusters[i].getSumSqr();
 
-    mSWCSS = temp;
+  mSWCSS = temp;
+
+#ifdef DEBUG
+  cout << "clusterAnalysis::calcSWCSS(): " << mSWCSS << endl;
+#endif
 }
 
 Cluster clusterAnalysis::getCluster(int pos)
 {
-    return clusters[pos];
+  return clusters[pos];
 }
 
-std::list<std::list<DataPoint> > clusterAnalysis::getClusterOutput()
+vector<vector<DataPoint> > clusterAnalysis::getClusterOutput()
 {
-  std::list<std::list<DataPoint> > dpsOutput;
+  vector<vector<DataPoint> > dpsOutput;
 
-    for (int i = 0; i < clusters.size(); i++)
-    {
-        dpsOutput.append(clusters[i].getDataPoints());
-    }
+  for (int i = 0; i < clusters.size(); i++) {
+    dpsOutput.push_back(clusters[i].getDataPoints());
+  }
 
-    return dpsOutput;
+  return dpsOutput;
 }
 
 double clusterAnalysis::getMaxXValue()
 {
-    double temp;
-    temp = ((DataPoint) mDataPoints.at(0)).getX();
+  double temp;
+  temp = ((DataPoint) mDataPoints.at(0)).getX();
 
-    for (int i = 0; i < mDataPoints.size(); i++)
-    {
-        DataPoint dp = (DataPoint) mDataPoints.at(i);
-        temp = (dp.getX() > temp) ? dp.getX() : temp;
-    }
-    return temp;
+  for (int i = 0; i < mDataPoints.size(); i++) {
+    DataPoint dp = (DataPoint) mDataPoints.at(i);
+    temp = (dp.getX() > temp) ? dp.getX() : temp;
+  }
+  return temp;
 }
 
 double clusterAnalysis::getMaxYValue()
 {
-    double temp = 0;
-    temp = ((DataPoint) mDataPoints.at(0)).getY();
+  double temp = 0;
+  temp = ((DataPoint) mDataPoints.at(0)).getY();
 
-    for (int i = 0; i < mDataPoints.size(); i++)
-    {
-        DataPoint dp = (DataPoint) mDataPoints.at(i);
-        temp = (dp.getY() > temp) ? dp.getY() : temp;
-    }
-    return temp;
+  for (int i = 0; i < mDataPoints.size(); i++) {
+    DataPoint dp = (DataPoint) mDataPoints.at(i);
+    temp = (dp.getY() > temp) ? dp.getY() : temp;
+  }
+  return temp;
 }
 
 double clusterAnalysis::getMinXValue()
 {
-    double temp = 0;
-    temp = ((DataPoint) mDataPoints.at(0)).getX();
+  double temp = 0;
+  temp = ((DataPoint) mDataPoints.at(0)).getX();
 
-    for (int i = 0; i < mDataPoints.size(); i++)
-    {
-        DataPoint dp = (DataPoint) mDataPoints.at(i);
-        temp = (dp.getX() < temp) ? dp.getX() : temp;
-    }
-    return temp;
+  for (int i = 0; i < mDataPoints.size(); i++) {
+    DataPoint dp = (DataPoint) mDataPoints.at(i);
+    temp = (dp.getX() < temp) ? dp.getX() : temp;
+  }
+  return temp;
 }
 
 double clusterAnalysis::getMinYValue()
 {
-    double temp = 0;
-    temp = ((DataPoint) mDataPoints.at(0)).getY();
+  double temp = 0;
+  temp = ((DataPoint) mDataPoints.at(0)).getY();
 
-    for (int i = 0; i < mDataPoints.size(); i++)
-    {
-        DataPoint dp = (DataPoint) mDataPoints.at(i);
-        temp = (dp.getY() < temp) ? dp.getY() : temp;
-    }
-    return temp;
+  for (int i = 0; i < mDataPoints.size(); i++) {
+    DataPoint dp = (DataPoint) mDataPoints.at(i);
+    temp = (dp.getY() < temp) ? dp.getY() : temp;
+  }
+  return temp;
 }
 
 int clusterAnalysis::getIterations()
 {
-    return miter;
+  return miter;
 }
 
 int clusterAnalysis::getKValue()
 {
-    return clusters.size();
+  return clusters.size();
 }
 
 double clusterAnalysis::getSWCSS()
 {
-    return mSWCSS;
+  return mSWCSS;
 }
 
 
 int clusterAnalysis::getTotalDataPoints()
 {
-    return mDataPoints.size();
+  return mDataPoints.size();
 }
 
-void clusterAnalysis::setInitialCentroids()
+void clusterAnalysis::setInitialCentroids(bool randomC)
 {
-    //kn = (round((max-min)/k)*n)+min where n is from 0 to (k-1).
-    double cx = 0, cy = 0;
+  //kn = (round((max-min)/k)*n)+min where n is from 0 to (k-1).
+  double cx, cy;
 
-    for (int n = 1; n <= clusters.size(); n++)
-    {
-        cx = (((getMaxXValue() - getMinXValue()) / (clusters.size() + 1)) * n) + getMinXValue();
-        cy = (((getMaxYValue() - getMinYValue()) / (clusters.size() + 1)) * n) + getMinYValue();
-
-        Centroid* c1 = new Centroid(cx, cy);
-        clusters[n - 1].setCentroid(c1);
-        c1->setCluster(&clusters[n - 1]);
+  std::srand(std::time(0)); // use current time as seed for random generator
+  double mValsX = (getMaxXValue() - getMinXValue())/ RAND_MAX;
+  double mValsY = (getMaxYValue() - getMinYValue() ) / RAND_MAX;
+  for (int n = 1; n <= clusters.size(); n++) {
+    if(randomC){
+      cx = mValsX * std::rand() + getMinXValue(); 
+      cy = mValsY * std::rand() + getMinYValue();
     }
+    else{
+      cx = (((getMaxXValue() - getMinXValue()) / (clusters.size() + 1)) * n) + getMinXValue();
+      cy = (((getMaxYValue() - getMinYValue()) / (clusters.size() + 1)) * n) + getMinYValue();
+    }
+      
+#ifdef DEBUG
+    cout << "set initial centroid:" << cx << "," << cy << " to cluster" << clusters[n - 1].getName() << endl;
+#endif	
+
+    Centroid* c1 = new Centroid(cx, cy);
+    clusters[n - 1].setCentroid(c1);
+    c1->setCluster(&clusters[n - 1]);
+  }
 }
 
 void clusterAnalysis::assignDPsToClusters()
 {
-    int n = 0;
+  int n = 0;
 
-    while (true)
-    {
+  while (true) {
 #ifdef DEBUG
-        std::cout << "clusterAnalysis::startAnalysis(): clusters.size(): " << clusters.size() << endl;
-        std::cout << "clusterAnalysis::startAnalysis(): mDataPoints.size(): " << mDataPoints.size();
+    cout << "clusterAnalysis::startAnalysis(): clusters.size(): " << clusters.size() << endl;
+    cout << "clusterAnalysis::startAnalysis(): mDataPoints.size(): " << mDataPoints.size() << endl;
 #endif
-        for (int l = 0; l < clusters.size(); l++)
-        {
+    for (int l = 0; l < clusters.size(); l++) {
 #ifdef DEBUG
-            std::cout << "clusterAnalysis::startAnalysis(): l: " << l << endl;
-            std::cout << "clusterAnalysis::startAnalysis(): n: " << n << endl;
+      cout << "clusterAnalysis::startAnalysis(): cluster: " << l << endl;
+      cout << "clusterAnalysis::startAnalysis(): counter data points: " << n << endl;
 #endif
 
-            clusters[l].addDataPoint((DataPoint)mDataPoints.at(n));
-            n++;
-            if (n >= mDataPoints.size())
-                return;
-        }
+      clusters[l].addDataPoint((DataPoint)mDataPoints.at(n));
+      n++;
+      if (n >= mDataPoints.size())
+	return;
     }
+  }
 }
 
 void clusterAnalysis::startAnalysis()
 {
 #ifdef DEBUG
-    std::cout << "entering clusterAnalysis::startAnalysis(): " << endl;
+  cout << "Entering clusterAnalysis::startAnalysis(): " << endl;
 #endif
 
-    //set Starting centroid positions - Start of Step 1
-    setInitialCentroids();
-
+  //set Starting centroid positions - Start of Step 1
+  setInitialCentroids(true); //set true for random initial centroids
 
 #ifdef DEBUG
-    std::cout << "clusterAnalysis::startAnalysis(): assign DataPoint to clusters" << endl;
+  cout << "clusterAnalysis::startAnalysis(): assign DataPoint to clusters" << endl;
 #endif
 
-    //assign DataPoint to clusters
-    assignDPsToClusters();
+  //assign DataPoint to clusters
+  assignDPsToClusters();
 
 #ifdef DEBUG
-    foreach(Cluster clus, clusters)
-    {
-        std::cout << "-----------Cluster" << ", size: "<< clus.getNumDataPoints() << "---------" << endl;
+  for(Cluster clus : clusters) {
+    cout << "-----------Cluster " << clus.getName() << ", size: "<< clus.getNumDataPoints() << "---------" << endl;
 
-        foreach(DataPoint dp, clus.getDataPoints())
-            std::cout << dp.getObjName() << "[" << dp.getX() << "," << dp.getY() << "]" << endl;
+    for(DataPoint dp : clus.getDataPoints())
+      cout << dp.getObjName() << "[" << dp.getX() << "," << dp.getY() << "]" << endl;
+  }
+  cout << "clusterAnalysis::startAnalysis(): calculate E for all the clusters" << endl;
+#endif
+
+  //calculate E for all the clusters
+  calcSWCSS();
+
+#ifdef DEBUG
+  cout << "clusterAnalysis::startAnalysis(): recalculate Cluster centroids - Start of Step 2" << endl;
+#endif
+
+  //recalculate Cluster centroids - Start of Step 2
+  for (int i = 0; i < clusters.size(); i++)
+    clusters[i].getCentroid()->calcCentroid();
+
+#ifdef DEBUG
+  cout << "clusterAnalysis::startAnalysis(): recalculate E for all the clusters" << endl;
+#endif
+
+  //recalculate E for all the clusters
+  calcSWCSS();
+
+#ifdef DEBUG
+  for(Cluster clus : clusters) {
+    cout << "-----------Cluster " << clus.getName() << ", size: "<< clus.getNumDataPoints() << "---------" << endl;
+
+    for(DataPoint dp : clus.getDataPoints())
+      std::cout << dp.getObjName() << "[" << dp.getX() << "," << dp.getY() << "]" << endl;
+  }
+  cout << "clusterAnalysis::startAnalysis(): entering loop for miterations" << endl;
+#endif
+
+  for (int i = 0; i < miter; i++) {
+      
+#ifdef DEBUG
+    for(Cluster clus : clusters) {
+      cout << "-----------Cluster " << clus.getName() << ", size: "<< clus.getNumDataPoints() << "---------" << endl;
+
+      for(DataPoint dp: clus.getDataPoints())
+	cout << dp.getObjName() << "[" << dp.getX() << "," << dp.getY() << "]" << endl;
     }
-    std::cout << "clusterAnalysis::startAnalysis(): calculate E for all the clusters" << endl;
+    cout << "clusterAnalysis::startAnalysis(): iteration: " << i << endl;
 #endif
 
-    //calculate E for all the clusters
-    calcSWCSS();
+    for (int j = 0; j < clusters.size(); j++) {
+#ifdef DEBUG
+      cout << "number of clusters: " << clusters.size() << endl;
+#endif
+      for (int k = 0; k < clusters[j].getNumDataPoints(); k++) {
+#ifdef DEBUG
+	cout << "cluster: " << j << ", size: " << clusters[j].getNumDataPoints() << endl;
+#endif
+	//pick the first element of the first cluster
+	//get the current Euclidean distance
+	double tempEuDt = clusters[j].getDataPoint(k).getCurrentEuDt();
 
 #ifdef DEBUG
-    std::cout << "clusterAnalysis::startAnalysis(): recalculate Cluster centroids - Start of Step 2" << endl;
+	cout << "current Euclidean distance: " << tempEuDt << endl;
 #endif
 
-    //recalculate Cluster centroids - Start of Step 2
-    for (int i = 0; i < clusters.size(); i++)
-        clusters[i].getCentroid()->calcCentroid();
+	Cluster* tempCluster=0;
+	bool matchFoundFlag = false;
+
+	//testEuclidean distance for all clusters
+	for (int l = 0; l < clusters.size(); l++) {
+	  //if testEuclidean < currentEuclidean then
+	  if (tempEuDt > clusters[j].getDataPoint(k).testEuclideanDistance(clusters[l].getCentroid())) {
+
+	    tempEuDt = clusters[j].getDataPoint(k).testEuclideanDistance(clusters[l].getCentroid());
+	    tempCluster = &clusters[l];
+	    matchFoundFlag = true;
 
 #ifdef DEBUG
-    std::cout << "clusterAnalysis::startAnalysis(): recalculate E for all the clusters" << endl;
+	    cout << "testEuclidean distance < current Euclidean distance: tempEuDt: " << tempEuDt << ", tempCluster: " << tempCluster->getName() << endl;
 #endif
 
-    //recalculate E for all the clusters
-    calcSWCSS();
+	  } // if statement - Check whether the Last EuDt is > Present EuDt
+	}
+	//for variable 'l' - Looping between different Clusters for matching a Data Point.
+	//add DataPoint to the cluster and calcSWCSS
 
-#ifdef DEBUG
-    foreach(Cluster clus, clusters)
-    {
-        std::cout << "-----------Cluster" << ", size: "<< clus.getNumDataPoints() << "---------" << endl;
-
-        foreach(DataPoint dp, clus.getDataPoints())
-            std::cout << dp.getObjName() << "[" << dp.getX() << "," << dp.getY() << "]" << endl;
-    }
-    std::cout << "clusterAnalysis::startAnalysis(): entering loop for miterations" << endl;
+	if (matchFoundFlag) {
+#ifdef DEBUG 
+	  cout << "matchFound, adding dp " << clusters[j].getDataPoint(k).getObjName() << " to cluster " << tempCluster->getName() << " with current cluster size: " << tempCluster->getNumDataPoints() << endl;
 #endif
 
-    for (int i = 0; i < miter; i++)
-    {
-#ifdef DEBUG
-        foreach(Cluster clus, clusters)
-        {
-            std::cout << "-----------Cluster" << ", size: "<< clus.getNumDataPoints() << "---------" << endl;
+	  tempCluster->addDataPoint(clusters[j].getDataPoint(k));
 
-            for(DataPoint dp: clus.getDataPoints())
-                std::cout << dp.getObjName() << "[" << dp.getX() << "," << dp.getY() << "]" << endl;
-        }
-        std::cout << "clusterAnalysis::startAnalysis(): iteration: " << i << endl;
+#ifdef DEBUG 
+	  cout << "Cluster " << tempCluster->getName() << " has new cluster size: " << tempCluster->getNumDataPoints() << endl;
+	  cout << "removing dp " << clusters[j].getDataPoint(k).getObjName() << " from cluster " << clusters[j].getName() << endl;
 #endif
+		    		  
+	  clusters[j].removeDataPoint(clusters[j].getDataPoint(k));
+#ifdef DEBUG
+	  cout << "Cluster " << clusters[j].getName() << " has a new cluster size: " << clusters[j].getNumDataPoints() << endl;
+	  cout << "Computing new centroids" << endl;
+#endif
+		    
+	  for (int m = 0; m < clusters.size(); m++)
+	    clusters[m].getCentroid()->calcCentroid();
 
-        //enter the loop for cluster 1
-        for (int j = 0; j < clusters.size(); j++)
-        {
-            for (int k = 0; k < clusters[j].getNumDataPoints(); k++)
-            {
-                //pick the first element of the first cluster
-                //get the current Euclidean distance
-                double tempEuDt = clusters[j].getDataPoint(k).getCurrentEuDt();
-                Cluster* tempCluster=0;
-                bool matchFoundFlag = false;
+	  //for variable 'm' - Recalculating centroids for all Clusters
+	  calcSWCSS();
+	}
 
-                //call testEuclidean distance for all clusters
-                for (int l = 0; l < clusters.size(); l++)
-                {
-                    //if testEuclidean < currentEuclidean then
-                    if (tempEuDt > clusters[j].getDataPoint(k).testEuclideanDistance(clusters[l].getCentroid()))
-                    {
-                        tempEuDt = clusters[j].getDataPoint(k).testEuclideanDistance(clusters[l].getCentroid());
-                        tempCluster = &clusters[l];
-                        matchFoundFlag = true;
-                    }
-                    //if statement - Check whether the Last EuDt is > Present EuDt
-
-                }
-                //for variable 'l' - Looping between different Clusters for matching a Data Point.
-                //add DataPoint to the cluster and calcSWCSS
-
-                if (matchFoundFlag)
-                {
-                    tempCluster->addDataPoint(clusters[j].getDataPoint(k));
-                    clusters[j].removeDataPoint(clusters[j].getDataPoint(k));
-
-                    for (int m = 0; m < clusters.size(); m++)
-                        clusters[m].getCentroid()->calcCentroid();
-
-                    //for variable 'm' - Recalculating centroids for all Clusters
-                    calcSWCSS();
-                }
-
-                //if statement - A Data Point is eligible for transfer between Clusters.
-            }
-            //for variable 'k' - Looping through all Data Points of the current Cluster.
-        }//for variable 'j' - Looping through all the Clusters.
-    }//for variable 'i' - Number of iterations.
+	//if statement - A Data Point is eligible for transfer between Clusters.
+      }
+      //for variable 'k' - Looping through all Data Points of the current Cluster.
+    }//for variable 'j' - Looping through all the Clusters.
+  }//for variable 'i' - Number of iterations.
 
 #ifdef DEBUG
-    std::cout << "exiting clusterAnalysis::startAnalysis()" << endl << endl;
+  cout << "exiting clusterAnalysis::startAnalysis()" << endl << endl;
 #endif
 }

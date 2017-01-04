@@ -18,24 +18,24 @@ class Cluster;
 class DataPoint
 {
 public:
-    DataPoint(double x, double y, QString name);
+  DataPoint(double x, double y, std::string name);
 
     void calcEuclideanDistance();        
     Cluster* getCluster();
     double getCurrentEuDt();
-    string getObjName();
+    std::string getObjName();
     double getX();
     double getY();
     void setCluster(Cluster* cluster);
     double testEuclideanDistance(Centroid* c);
 
-    //overload operator for removeOne() from List on Cluster::removeDataPoint(DataPoint dp)
+    //overload operator for removeOne() from vector on Cluster::removeDataPoint(DataPoint dp)
     bool operator==(DataPoint dp1);
 
 private:    
     Cluster* mCluster;
     double mEuDt;
-    string mObjName;    
+    std::string mObjName;    
     double mX,mY;
 };
 

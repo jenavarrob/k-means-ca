@@ -8,7 +8,7 @@
 #ifndef CLUSTERANALYSIS_H
 #define CLUSTERANALYSIS_H
 
-#include <list>
+#include <vector>
 
 class Cluster;
 class DataPoint;
@@ -16,12 +16,12 @@ class DataPoint;
 class clusterAnalysis
 {
 public:
-  clusterAnalysis(int k, int iter, std::list<DataPoint> dataPoints);
+  clusterAnalysis(int k, int iter, std::vector<DataPoint> dataPoints);
 
     //methods
     void assignDPsToClusters();
     Cluster getCluster(int pos);
-    std::list<std::list<DataPoint> > getClusterOutput();
+    std::vector<std::vector<DataPoint> > getClusterOutput();
     int getIterations();
     int getKValue();
     double getSWCSS() ;
@@ -29,8 +29,8 @@ public:
     void startAnalysis();
 
 private:
-    std::list<Cluster> clusters;
-    std::list<DataPoint> mDataPoints;
+    std::vector<Cluster> clusters;
+    std::vector<DataPoint> mDataPoints;
 
     int miter;
     double mSWCSS;
@@ -41,7 +41,7 @@ private:
     double getMinXValue();
     double getMaxYValue();
     double getMinYValue();
-    void setInitialCentroids();
+    void setInitialCentroids(bool);
 };
 
 #endif // CLUSTERANALYSIS_H

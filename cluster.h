@@ -5,20 +5,22 @@
 class DataPoint;
 class Centroid;
 
-#include <list>
+#include <vector>
 #include <string>
+
+using namespace std;
 
 class Cluster
 {
 public:
     Cluster();
-    Cluster(QString);
+    Cluster(string);
 
     void addDataPoint(DataPoint dp);
     void calcSumOfSquares();
     Centroid* getCentroid();
     DataPoint getDataPoint(int pos);
-    std::list<DataPoint> getDataPoints();
+    vector<DataPoint> getDataPoints();
     string getName();
     int getNumDataPoints();
     double getSumSqr();
@@ -27,7 +29,7 @@ public:
 
 private:
     Centroid* mCentroid;
-    std::list<DataPoint> mDataPoints;
+    vector<DataPoint> mDataPoints;
     string mName;
     double mSumSqr;
 };
