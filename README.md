@@ -20,4 +20,4 @@ K-means can be used to answer the following questions:
 * Classification accuracy: Are there any other classes and subclasses for the data?
 
 ** How to compile and link
-g++-5 -Wall -o kmeansca main.cpp centroid.cpp clusteranalysis.cpp cluster.cpp datapoint.cpp -std=c++1
+g++-5 -Wall -o kmeansca main.cpp centroid.cpp clusteranalysis.cpp cluster.cpp datapoint.cpp -std=c++11
